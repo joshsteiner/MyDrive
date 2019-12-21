@@ -1,0 +1,21 @@
+<h1>{{ dirname }}</h1>
+<table id="file-list-container">
+    <tr>
+        <th>name</th>
+        <th>size</th>
+    </tr>
+
+    {% for subdir in subdirs %}
+    <tr>
+        <td>{{ subdir.name }}</td>
+        <td></td>
+    </tr>
+    {% endfor %}
+
+    {% for file in files %}
+    <tr>
+        <td>{{ file.name }}</td>
+        <td>{{ file.size }}</td>
+    </tr>
+    {% endfor %}
+</table>
