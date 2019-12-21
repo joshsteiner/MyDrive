@@ -5,13 +5,13 @@ from .models import Directory, File, NotFoundError
 
 
 def index(request, path):
-    dirname = path
+    path = path.split('/')
     try:
         directory = Directory.from_path(path)
         subdirs = directory.subdirectories()
         files = directory.files()
         context = {
-            'dirname': dirname,
+            'path': path,
             'subdirs': subdirs,
             'files': files,
         }

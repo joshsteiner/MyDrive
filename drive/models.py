@@ -29,7 +29,7 @@ class Directory(models.Model):
             Raise NotFoundError if not found.
         """
         directory = None
-        for dirname in path.split('/'):
+        for dirname in path:
             directory = Directory.objects \
                 .filter(parent=directory, name=dirname) \
                 .first()
@@ -54,11 +54,8 @@ class File(models.Model):
         """ Get file at specified path.
             Raise NotFoundError if not found.
         """
-        path = path.split('/')
-        filename = path[-1]
-        dirname = '/'.join(path[:-1])
-        directory = Directory.from_path(dirname)
-        file_ = File.objects.filter(directory=directory, name=filename).first()
+        directory = Directory.from_path(path[:-1])
+        file_ = File.objects.filter(directory=directory, name=path[-1]).first()
         if file_ is None:
             raise NotFoundError()
         return file_

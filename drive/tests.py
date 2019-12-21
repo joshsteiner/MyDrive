@@ -38,9 +38,9 @@ class DirectoryModelTest(TestCase):
         a.save()
         b.save()
         c.save()
-        self.assertEqual(Directory.from_path('a'), a)
-        self.assertEqual(Directory.from_path('a/b'), b)
-        self.assertEqual(Directory.from_path('a/b/c'), c)
+        self.assertEqual(Directory.from_path(['a']), a)
+        self.assertEqual(Directory.from_path(['a', 'b']), b)
+        self.assertEqual(Directory.from_path(['a', 'b', 'c']), c)
 
     def test_from_path_when_no_dir(self):
         """ Get directory using from_path() when directory doesn't exist. """
@@ -51,11 +51,11 @@ class DirectoryModelTest(TestCase):
         b.save()
         c.save()
         with self.assertRaises(NotFoundError):
-            Directory.from_path('r')
+            Directory.from_path(['r'])
         with self.assertRaises(NotFoundError):
-            Directory.from_path('b')
+            Directory.from_path(['b'])
         with self.assertRaises(NotFoundError):
-            Directory.from_path('a/c')
+            Directory.from_path(['a', 'c'])
 
 
 class FileModelTest(TestCase):
@@ -69,14 +69,14 @@ class FileModelTest(TestCase):
 
     def test_from_path(self):
         """ Get file using from_path(). """
-        self.assertEqual(File.from_path('d/f'), self.f)
+        self.assertEqual(File.from_path(['d', 'f']), self.f)
 
     def test_from_path_when_no_dir(self):
         """ Get file using from_path() when no directory. """
         with self.assertRaises(NotFoundError):
-            File.from_path('r/f')
+            File.from_path(['r', 'f'])
 
     def test_from_path_when_no_file(self):
         """ Get file using from_path() when file doesn't exist. """
         with self.assertRaises(NotFoundError):
-            File.from_path('d/f2')
+            File.from_path(['d', 'f2'])

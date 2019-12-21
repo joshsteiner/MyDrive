@@ -1,19 +1,27 @@
-<h1>{{ dirname }}</h1>
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'drive/style.css' %}">
+
+<h1>{{ path|join:'/' }}</h1>
+<a href="/drive/{{ path|slice:':-1'|join:'/' }}">..</a>
 <table id="file-list-container">
     <tr>
+        <th></th>
         <th>name</th>
         <th>size</th>
     </tr>
 
-    {% for subdir in subdirs %}
+    {% for subdir in subdirs.all %}
     <tr>
-        <td>{{ subdir.name }}</td>
+        <td>D</td>
+        <td><a href="{{ path|join:'/' }}/{{ subdir.name }}">{{ subdir.name }}</a></td>
         <td></td>
     </tr>
     {% endfor %}
 
-    {% for file in files %}
+    {% for file in files.all %}
     <tr>
+        <td></td>
         <td>{{ file.name }}</td>
         <td>{{ file.size }}</td>
     </tr>
