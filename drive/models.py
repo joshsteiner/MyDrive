@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinLengthValidator, ValidationError
 
 
 class NotFoundError(Exception):
@@ -9,19 +10,31 @@ class NotFoundError(Exception):
 
 
 class Directory(models.Model):
-    name = models.CharField(max_length=255)
-    parent = models.ForeignKey('self', null=True, on_delete=models.DO_NOTHING)
+    ROOT = None
+
+    name = models.CharField(
+        max_length=255,
+        validators=[MinLengthValidator(1)])
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        on_delete=models.DO_NOTHING)
+
+    class Meta:
+        unique_together = ('parent', 'name')
 
     def __str__(self):
         return self.name + '/'
 
-    def subdirectories(self):
+    @staticmethod
+    def subdirs(directory):
         """ Return a QuerySet of subdirectories. """
-        return Directory.objects.filter(parent=self)
+        return Directory.objects.filter(parent=directory)
 
-    def files(self):
+    @staticmethod
+    def files(directory):
         """ Return a QuerySet of files inside the directory. """
-        return File.objects.filter(directory=self)
+        return File.objects.filter(directory=directory)
 
     @classmethod
     def from_path(cls, path):
@@ -29,7 +42,7 @@ class Directory(models.Model):
             Raise NotFoundError if not found.
         """
         directory = None
-        for dirname in path.split('/'):
+        for dirname in path:
             directory = Directory.objects \
                 .filter(parent=directory, name=dirname) \
                 .first()
@@ -39,12 +52,22 @@ class Directory(models.Model):
 
 
 class File(models.Model):
-    directory = models.ForeignKey(Directory, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=256)
-    size = models.IntegerField(default=0)
+    directory = models.ForeignKey(
+        Directory,
+        null=True,
+        on_delete=models.DO_NOTHING)
+    name = models.CharField(
+        max_length=256,
+        validators=[MinLengthValidator(1)])
+    size = models.IntegerField(
+        default=0)
 
     # path to the file's content as stored in the server's file system
-    storage_name = models.CharField(max_length=256)
+    # NOTE: null, blank is temporary
+    storage_name = models.CharField(max_length=256, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('directory', 'name')
 
     def __str__(self):
         return self.name
@@ -54,11 +77,8 @@ class File(models.Model):
         """ Get file at specified path.
             Raise NotFoundError if not found.
         """
-        path = path.split('/')
-        filename = path[-1]
-        dirname = '/'.join(path[:-1])
-        directory = Directory.from_path(dirname)
-        file_ = File.objects.filter(directory=directory, name=filename).first()
+        directory = Directory.from_path(path[:-1])
+        file_ = File.objects.filter(directory=directory, name=path[-1]).first()
         if file_ is None:
             raise NotFoundError()
         return file_

@@ -1,21 +1,61 @@
-<h1>{{ dirname }}</h1>
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'drive/style.css' %}">
+
+<h1 id="title"></h1>
+<a id="up-dir">..</a>
 <table id="file-list-container">
     <tr>
+        <th></th>
         <th>name</th>
         <th>size</th>
     </tr>
 
-    {% for subdir in subdirs %}
+    {% for subdir in subdirs.all %}
     <tr>
-        <td>{{ subdir.name }}</td>
+        <td>D</td>
+        <td><a class="dir-link">{{ subdir.name }}</a></td>
         <td></td>
     </tr>
     {% endfor %}
 
-    {% for file in files %}
+    {% for file in files.all %}
     <tr>
+        <td></td>
         <td>{{ file.name }}</td>
         <td>{{ file.size }}</td>
     </tr>
     {% endfor %}
 </table>
+
+<script>
+    // set title, up-dir and dir-links
+    var path = "{{ path|join:"/" }}".split('\/');
+
+    document.querySelector('#title').innerHTML = pathStr(path);
+    document.querySelector('#up-dir').href = clean('/drive/' + pathUpStr(path));
+
+    document.querySelectorAll('.dir-link').forEach(e => {
+        e.href = clean('/drive/' + pathStr(path, e.innerHTML));
+    });
+
+    function clean(path) {
+        return path.replace('//', '/').slice(0, -1);
+    }
+
+    function pathStr(path, subdir) {
+        let p = '';
+        if (path !== []) {
+            p += path.join('/');
+        }
+        p += '/';
+        if (subdir) {
+            p += subdir + '/';
+        }
+        return p;
+    }
+
+    function pathUpStr(path) {
+        return path.slice(0, -1).join('/') + '/';
+    }
+</script>
