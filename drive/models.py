@@ -18,13 +18,23 @@ class Directory(models.Model):
     parent = models.ForeignKey(
         'self',
         null=True,
-        on_delete=models.DO_NOTHING)
+        on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('parent', 'name')
 
     def __str__(self):
         return self.name + '/'
+
+    @staticmethod
+    def remove(path):
+        """ Remove directory. """
+        Directory.from_path(path).delete()
+
+    @staticmethod
+    def make(path):
+        """ Make directory. """
+        pass
 
     @staticmethod
     def subdirs(directory):
@@ -55,7 +65,7 @@ class File(models.Model):
     directory = models.ForeignKey(
         Directory,
         null=True,
-        on_delete=models.DO_NOTHING)
+        on_delete=models.CASCADE)
     name = models.CharField(
         max_length=256,
         validators=[MinLengthValidator(1)])

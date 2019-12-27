@@ -1,61 +1,32 @@
 {% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'drive/style.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-<h1 id="title"></h1>
-<a id="up-dir">..</a>
-<table id="file-list-container">
-    <tr>
-        <th></th>
-        <th>name</th>
-        <th>size</th>
-    </tr>
+<header>
+  <h1>My Drive</h1>
+</header>
 
-    {% for subdir in subdirs.all %}
-    <tr>
-        <td>D</td>
-        <td><a class="dir-link">{{ subdir.name }}</a></td>
-        <td></td>
-    </tr>
-    {% endfor %}
+<main>
+  <nav>
+    <ul>
+      <li>upload file</li>
+      <li>upload folder</li>
+    </ul>
+  </nav>
 
-    {% for file in files.all %}
-    <tr>
-        <td></td>
-        <td>{{ file.name }}</td>
-        <td>{{ file.size }}</td>
-    </tr>
-    {% endfor %}
-</table>
+  <div id="app">
+    <dir-listing
+      v-bind:dir=dir
+      v-bind:path-to-dir=pathToDir
+    />
+  </div>
+</main>
+
+<script src="{% static 'drive/api.js' %}"></script>
+<script src="{% static 'drive/app.js' %}"></script>
 
 <script>
-    // set title, up-dir and dir-links
-    var path = "{{ path|join:"/" }}".split('\/');
-
-    document.querySelector('#title').innerHTML = pathStr(path);
-    document.querySelector('#up-dir').href = clean('/drive/' + pathUpStr(path));
-
-    document.querySelectorAll('.dir-link').forEach(e => {
-        e.href = clean('/drive/' + pathStr(path, e.innerHTML));
-    });
-
-    function clean(path) {
-        return path.replace('//', '/').slice(0, -1);
-    }
-
-    function pathStr(path, subdir) {
-        let p = '';
-        if (path !== []) {
-            p += path.join('/');
-        }
-        p += '/';
-        if (subdir) {
-            p += subdir + '/';
-        }
-        return p;
-    }
-
-    function pathUpStr(path) {
-        return path.slice(0, -1).join('/') + '/';
-    }
+  fsop.ls(1).then(data => app.setRoot(data))
 </script>

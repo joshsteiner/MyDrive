@@ -4,6 +4,7 @@ from . import views
 
 app_name = 'drive'
 urlpatterns = [
-    path('', views.root, name='root'),
-    path('<path:path>', views.index, name='index'),
+    path('fsop', views.file_system_op, name='fsop'),
+    path('d/', views.root, name='root'),
+    path('d/<path:path>', views.index, name='index'),
 ]
